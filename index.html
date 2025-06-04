@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Progress Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .add-user-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .leaderboard {
+            padding: 30px;
+        }
+
+        .leaderboard h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .user-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rank {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .rank.gold { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+        .rank.silver { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #333; }
+        .rank.bronze { background: linear-gradient(135deg, #cd7f32, #daa520); }
+
+        .username {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .total-solved {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .stat-item.easy { border-left: 4px solid #00b894; }
+        .stat-item.medium { border-left: 4px solid #fdcb6e; }
+        .stat-item.hard { border-left: 4px solid #e17055; }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #d63031;
+        }
+
+        .success {
+            background: #e6ffe6;
+            color: #00b894;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #00b894;
+        }
+
+        .api-status {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 20px;
+            border-radius: 8px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .input-group { flex-direction: column; }
+            .user-header { flex-direction: column; gap: 10px; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 LeetCode Leaderboard</h1>
+            <p>Track your friends' coding progress and compete!</p>
+        </div>
+
+        <div class="add-user-section">
+            <div class="input-group">
+                <input type="text" id="usernameInput" placeholder="Enter LeetCode username..." />
+                <button class="btn" onclick="addUser()">Add User</button>
+                <button class="btn" onclick="refreshAll()">Refresh All</button>
+            </div>
+            <div id="message"></div>
+        </div>
+
+        <div class="leaderboard">
+            <h2>🥇 Current Rankings</h2>
+            <div id="userList">
+                <div class="loading">
+                    <p>Add some users to get started!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshAll()" title="Refresh All">
+        ↻
+    </button>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('leetcodeUsers') || '[]');
+        
+        // Multiple API endpoints for redundancy
+        const API_ENDPOINTS = [
+            'https://leetcodeapi-v1.vercel.app',
+            'https://leetcode-rest-api.onrender.com/profile',
+            'https://alfa-leetcode-api.onrender.com'
+        ];
+
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        async function fetchUserData(username) {
+            // Try multiple API endpoints
+            for (let endpoint of API_ENDPOINTS) {
+                try {
+                    let url;
+                    let options = {};
+                    
+                    if (endpoint.includes('onrender.com/profile')) {
+                        // This API requires POST with username in body
+                        url = endpoint;
+                        options = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ username: username })
+                        };
+                    } else if (endpoint.includes('alfa-leetcode-api')) {
+                        url = `${endpoint}/${username}`;
+                    } else {
+                        url = `${endpoint}/${username}`;
+                    }
+
+                    console.log(`Trying API: ${url}`);
+                    const response = await fetch(url, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('API Response:', data);
+                    
+                    // Normalize the data structure
+                    return normalizeUserData(data, username);
+                    
+                } catch (error) {
+                    console.error(`API ${endpoint} failed:`, error);
+                    continue;
+                }
+            }
+            
+            // If all APIs fail, return mock data or throw error
+            throw new Error('All API endpoints failed');
+        }
+
+        function normalizeUserData(data, username) {
+            // Handle different API response formats
+            let normalized = {
+                username: username,
+                totalSolved: 0,
+                easySolved: 0,
+                mediumSolved: 0,
+                hardSolved: 0,
+                ranking: 0,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Try to extract data from various API formats
+            if (data.totalSolved !== undefined) {
+                normalized.totalSolved = data.totalSolved;
+            } else if (data.submitStats && data.submitStats.acSubmissionNum) {
+                // LeetCode GraphQL format
+                const submissions = data.submitStats.acSubmissionNum;
+                normalized.totalSolved = submissions.find(s => s.difficulty === 'All')?.count || 0;
+                normalized.easySolved = submissions.find(s => s.difficulty === 'Easy')?.count || 0;
+                normalized.mediumSolved = submissions.find(s => s.difficulty === 'Medium')?.count || 0;
+                normalized.hardSolved = submissions.find(s => s.difficulty === 'Hard')?.count || 0;
+            } else if (data.solvedProblem !== undefined) {
+                normalized.totalSolved = data.solvedProblem;
+            }
+
+            // Try to get difficulty breakdown
+            if (data.easySolved !== undefined) {
+                normalized.easySolved = data.easySolved;
+                normalized.mediumSolved = data.mediumSolved || 0;
+                normalized.hardSolved = data.hardSolved || 0;
+            }
+
+            // Get ranking if available
+            if (data.ranking !== undefined) {
+                normalized.ranking = data.ranking;
+            }
+
+            return normalized;
+        }
+
+        async function addUser() {
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            if (!username) {
+                showMessage('Please enter a username!', 'error');
+                return;
+            }
+
+            if (users.find(u => u.username === username)) {
+                showMessage('User already exists!', 'error');
+                return;
+            }
+
+            showMessage('Fetching user data...', 'success');
+            
+            try {
+                const userData = await fetchUserData(username);
+                users.push(userData);
+                saveUsers();
+                displayUsers();
+                document.getElementById('usernameInput').value = '';
+                showMessage(`Added ${username} successfully!`, 'success');
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                
+                // Add user with placeholder data if API fails
+                const placeholderUser = {
+                    username: username,
+                    totalSolved: 0,
+                    easySolved: 0,
+                    mediumSolved: 0,
+                    hardSolved: 0,
+                    ranking: 0,
+                    lastUpdated: new Date().toISOString(),
+                    error: true
+                };
+                
+                users.push(placeholderUser);
+                saveUsers();
+                displayUsers();
+                document.getElementById('usernameInput').value = '';
+                showMessage(`Added ${username} (API unavailable - data will be updated when APIs are accessible)`, 'error');
+            }
+        }
+
+        async function refreshUser(username) {
+            try {
+                const userData = await fetchUserData(username);
+                const userIndex = users.findIndex(u => u.username === username);
+                if (userIndex !== -1) {
+                    users[userIndex] = userData;
+                    saveUsers();
+                    displayUsers();
+                }
+                return true;
+            } catch (error) {
+                console.error(`Error refreshing ${username}:`, error);
+                return false;
+            }
+        }
+
+        async function refreshAll() {
+            if (users.length === 0) return;
+            
+            showMessage('Refreshing all users...', 'success');
+            let successCount = 0;
+            
+            for (let user of users) {
+                const success = await refreshUser(user.username);
+                if (success) successCount++;
+            }
+            
+            showMessage(`Refreshed ${successCount}/${users.length} users successfully!`, 'success');
+        }
+
+        function displayUsers() {
+            const userList = document.getElementById('userList');
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<div class="loading"><p>Add some users to get started!</p></div>';
+                return;
+            }
+
+            // Sort users by total problems solved (descending)
+            const sortedUsers = [...users].sort((a, b) => b.totalSolved - a.totalSolved);
+            
+            let html = '';
+            sortedUsers.forEach((user, index) => {
+                const rank = index + 1;
+                let rankClass = '';
+                if (rank === 1) rankClass = 'gold';
+                else if (rank === 2) rankClass = 'silver';
+                else if (rank === 3) rankClass = 'bronze';
+
+                const lastUpdated = new Date(user.lastUpdated).toLocaleDateString();
+                
+                html += `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-info">
+                                <div class="rank ${rankClass}">${rank}</div>
+                                <div>
+                                    <div class="username">${user.username}</div>
+                                    <small>Last updated: ${lastUpdated}</small>
+                                </div>
+                            </div>
+                            <div class="total-solved">${user.totalSolved}</div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item easy">
+                                <div class="stat-number">${user.easySolved}</div>
+                                <div class="stat-label">Easy</div>
+                            </div>
+                            <div class="stat-item medium">
+                                <div class="stat-number">${user.mediumSolved}</div>
+                                <div class="stat-label">Medium</div>
+                            </div>
+                            <div class="stat-item hard">
+                                <div class="stat-number">${user.hardSolved}</div>
+                                <div class="stat-label">Hard</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; text-align: right;">
+                            <button class="btn" onclick="refreshUser('${user.username}')" style="font-size: 14px; padding: 8px 16px;">
+                                Refresh
+                            </button>
+                            <button class="btn" onclick="removeUser('${user.username}')" style="background: #d63031; font-size: 14px; padding: 8px 16px; margin-left: 10px;">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            userList.innerHTML = html;
+        }
+
+        function removeUser(username) {
+            if (confirm(`Remove ${username} from leaderboard?`)) {
+                users = users.filter(u => u.username !== username);
+                saveUsers();
+                displayUsers();
+                showMessage(`Removed ${username}`, 'success');
+            }
+        }
+
+        function saveUsers() {
+            localStorage.setItem('leetcodeUsers', JSON.stringify(users));
+        }
+
+        // Handle Enter key in input
+        document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addUser();
+            }
+        });
+
+        // Initial load
+        displayUsers();
+
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            if (users.length > 0) {
+                refreshAll();
+            }
+        }, 5 * 60 * 1000);
+
+        console.log('LeetCode Leaderboard initialized!');
+        console.log('Available API endpoints:', API_ENDPOINTS);
+    </script>
+</body>
+</html>
