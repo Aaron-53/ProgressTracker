@@ -6,7 +6,7 @@ import './App.css'
 function App() {
   return (
     <Router>
-      <div className="h-screen w-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 m-0 p-0 overflow-hidden">
+      <div className="min-h-screen w-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 m-0 p-0 overflow-visible">
         <Routes>
           <Route path="/" element={<Navigate to="/questions" replace />} />
           <Route path="/questions" element={<Questions />} />
