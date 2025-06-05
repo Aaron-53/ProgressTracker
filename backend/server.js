@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDB = require("./config/database");
-const scrapeRoutes = require("./routes/scrapeRoutes");
+const connectDB = require("./config/mongoose.js");
+const userRoutes = require("./routes/userRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -16,7 +16,7 @@ connectDB();
 app.use(express.json());
 
 // Routes
-app.use("/api", scrapeRoutes);
+app.use("/api/user", userRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
