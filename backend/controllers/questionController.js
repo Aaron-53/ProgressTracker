@@ -19,7 +19,7 @@ class questionController {
         return res.status(400).json({ success: false, message: "Title slug is required" });
       }
 
-      const question = await Question.finrOne({ titleSlug });
+      const question = await Question.findOne({ titleSlug });
 
       if (!question) {
         return res.status(404).json({ success: false, message: "Question not found" });
