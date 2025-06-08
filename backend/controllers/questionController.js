@@ -34,7 +34,7 @@ class questionController {
   static async uploadQuestion(req, res) {
     const { titleSlug } = req.body;
 
-    if (!titleSlug) {
+    if (!titleSlug || titleSlug.trim() === "") {
       return res.status(400).json({ success: false, message: "Title slug is required" });
     }
 
@@ -48,7 +48,7 @@ class questionController {
         { new: true, upsert: true }
       );
 
-      res.statsus(200).json({
+      res.status(200).json({
         success: true,
         message: "Question uploaded successfully",
         data: question
