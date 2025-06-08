@@ -15,7 +15,7 @@ class questionController {
     try {
       const { titleSlug } = req.params;
 
-      if (!titleSlug) {
+      if (!titleSlug || titleSlug.trim() === "") {
         return res.status(400).json({ success: false, message: "Title slug is required" });
       }
 
@@ -33,6 +33,10 @@ class questionController {
 
   static async uploadQuestion(req, res) {
     const { titleSlug } = req.body;
+
+    if (!titleSlug) {
+      return res.status(400).json({ success: false, message: "Title slug is required" });
+    }
 
     try {
 
