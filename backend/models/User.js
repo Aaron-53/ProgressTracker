@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const solvedSchema = new mongoose.Schema({
     question: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
-    title: String,
     timestamp: {type: Date,default: Date.now},
     submissionId: String
 });
