@@ -1,5 +1,3 @@
-// const { getCleanBodyContent } = require("../utils/puppeteerUtils");
-// const { findNameFromBodyContent, findSubmissons } = require("../utils/extractionUtils");
 const { findName, findSubmissons, findProgress } = require("../utils/extractionUtils");
 const User = require("../models/User");
 
@@ -8,6 +6,15 @@ const User = require("../models/User");
 const userCookies = {};
 
 class userController {
+static async getAllUserProgress(req, res) {
+  try {
+    const users = await User.find({},{username: 0, password: 0});
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
   static async getNameFromLeetCodeProfile(req, res) {
     const { username } = req.query;
 
@@ -45,7 +52,7 @@ class userController {
         }
       }
 
-      res.json({ success: true, data: results });
+      res.json({ success: true, message: "Progress updated successfully"});
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
