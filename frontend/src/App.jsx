@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Questions from './components/Questions'
 import Question from './components/Question'
 import './App.css'
+import Login from './components/Login'
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Route path="/" element={<Navigate to="/questions" replace />} />
           <Route path="/questions" element={<Questions />} />
           <Route path="/question/:id" element={<Question />} />
+          <Route path="/login" element={<Login/>} />
         </Routes>
       </div>
     </Router>
