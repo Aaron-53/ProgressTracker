@@ -18,16 +18,19 @@
   },
   "dependencies": {
     "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
     "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "moongoose": "^0.0.1",
-    "nodemon": "^3.1.10",
     "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.10",
     "puppeteer": "^24.9.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "dotenv": "^16.3.1"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",

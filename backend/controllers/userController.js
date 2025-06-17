@@ -1,5 +1,5 @@
 const { findName, findSubmissons, findProgress } = require("../utils/extractionUtils");
-const User = require("../models/User");
+const User = require("../models/userModel"); 
 
 
 // In-memory store for cookies per user session (use Redis for production)
