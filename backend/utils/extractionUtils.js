@@ -48,6 +48,8 @@ async function findSubmissons(username) {
           title
           titleSlug
           timestamp
+          statusDisplay
+          lang
         }
       }
     `,
@@ -73,7 +75,13 @@ async function findProgress(submissions) {
     const progress = [];
     for (const submission of submissions) {
       if (questions.some(q => q.titleSlug === submission.titleSlug)) {
-        progress.push({question:questions.find(q => q.titleSlug === submission.titleSlug), timestamp: submission.timestamp, submissionId: submission.id });
+        progress.push({
+          question: questions.find(q => q.titleSlug === submission.titleSlug),
+          timestamp: submission.timestamp,
+          submissionId: submission.id,
+          status: submission.statusDisplay,
+          language: submission.lang
+        });
       }
     }
     return progress;

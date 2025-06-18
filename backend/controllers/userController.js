@@ -1,20 +1,64 @@
 const { findName, findSubmissons, findProgress } = require("../utils/extractionUtils");
 const User = require("../models/User");
+const Question = require("../models/questionModel");
 
 
 // In-memory store for cookies per user session (use Redis for production)
 const userCookies = {};
 
 class userController {
-static async getAllUserProgress(req, res) {
-  try {
-    const users = await User.find({},{username: 0, password: 0});
-    res.status(200).json({ success: true, users });
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ success: false, error: error.message });
+  static async getAllUserProgress(req, res) {
+    try {
+      const users = await User.find({}, { createdAt: 0, password: 0, _id: 0});
+      res.status(200).json({ success: true, users });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
-}
+
+  static async getQuestionProgress(req, res) {
+    const { titleSlug } = req.params;
+    try {
+      const question = await Question.findOne({ titleSlug });
+      if (!question) {
+        res.status(404).json({ success: false, message: "Question not found" });
+      }
+      const users = await User.find(
+        { "solvedQuestions.question": question._id },
+        {
+          username: 1,
+          solvedQuestions: {
+            $elemMatch: { question: question._id }
+          }
+        }
+      );
+
+      const attempted = [];
+      const completed = [];
+
+      for (const user of users) {
+        const sq = user.solvedQuestions[0];
+        const entry = {
+          user: user.username,
+          submissionId: sq.submissionId,
+          language: sq.language
+        };
+
+        if (sq.status === "Accepted") {
+          completed.push(entry);
+        } else {
+          attempted.push(entry);
+        }
+      }
+
+      return res.json({ attempted, completed });
+    } catch (error) {
+      console.error("Error fetching question progress:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
   static async getNameFromLeetCodeProfile(req, res) {
     const { username } = req.query;
 
@@ -36,13 +80,12 @@ static async getAllUserProgress(req, res) {
       const results = [];
       for (const user of users) {
         const username = user.username;
-        console.log(`Processing ${username}`);
 
         try {
           const submissions = await findSubmissons(username);
           const progress = await findProgress(submissions);
           if (JSON.stringify(user.solvedQuestions) !== JSON.stringify(progress)) {
-            user.solvedQuestions  = progress;
+            user.solvedQuestions = progress;
             await user.save();
           }
           results.push({ username, progress });
@@ -52,7 +95,7 @@ static async getAllUserProgress(req, res) {
         }
       }
 
-      res.json({ success: true, message: "Progress updated successfully"});
+      res.json({ success: true, message: "Progress updated successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
