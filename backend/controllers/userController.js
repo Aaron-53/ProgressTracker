@@ -28,7 +28,7 @@ class userController {
     try {
       const question = await Question.findOne({ titleSlug });
       if (!question) {
-        res.status(404).json({ success: false, message: "Question not found" });
+        return res.status(404).json({ success: false, message: "Question not found" });
       }
       const users = await User.find(
         { "solvedQuestions.question": question._id },
