@@ -27,7 +27,6 @@ async function findName(username) {
     const data = await response.json();
     return data.data.matchedUser.profile.realName
   } catch (error) {
-    console.log("Error finding name:", error);
     return null;
   }
 
@@ -64,7 +63,6 @@ async function findSubmissons(username) {
     const data = await response.json();
     return data.data.recentAcSubmissionList
   } catch (error) {
-    console.log("Error finding submissons:", error);
     return null;
   }
 }
@@ -86,7 +84,6 @@ async function findProgress(submissions) {
     }
     return progress;
   } catch (error) {
-    console.log("Error finding progress:", error);
     return null;
   }
 }

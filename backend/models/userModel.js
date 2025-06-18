@@ -10,16 +10,12 @@ const solvedSchema = new mongoose.Schema({
     type: Date, 
     default: Date.now 
   },
-  submissionId: String
+  submissionId: String,
+  status: String,
+  language: String
 });
 
 const userSchema = new mongoose.Schema({
-  // name: { 
-  //   type: String, 
-  //   required: true,
-  //   trim: true,
-  //   maxlength: 50
-  // },
   username: {
     type: String,
     required: true,
