@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const questionRoutes = require("../routes/questonRoutes");
 const userRoutes = require("../routes/userRoutes");
 const authRoutes = require("../routes/authRoutes");
+const userProgressCron = require("../cronJobs/userProgressUpdater");
 
 // Load environment variables
 dotenv.config();
@@ -27,5 +28,8 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+//Node Cron
+userProgressCron();
 
 module.exports = app;
