@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "moongoose": "^0.0.1",
+    "node-cron": "^4.1.0",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
     "puppeteer": "^24.9.0",
