@@ -31,15 +31,15 @@ function Question() {
         const completedUsers = userRes.data.completed.map(user => ({
           name: user.user,
           solution: `Solution not available`,
-          timeTaken: "—",
-          timeComplexity: "—",
-          spaceComplexity: "—"
+          timeTaken: "-",
+          timeComplexity: "-",
+          spaceComplexity: "-"
         }))
 
         const attemptedUsers = userRes.data.attempted.map(user => ({
           name: user.user,
           currentSolution: `Partial code not available`,
-          testCasesPassed: "—"
+          testCasesPassed: "-"
         }))
         const completedNames = userRes.data.completed.map(u => u.user)
         const attemptedNames = userRes.data.attempted.map(u => u.user)
@@ -158,7 +158,7 @@ function Question() {
   </h2>
 
   {userProgress.notAttempted.length > 0 ? (
-    <ul className="text-left w-full border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white">
+    <ul className="text-left inline-block px-3 py-2 text-white">
       {userProgress.notAttempted.map(({ name }) => (
         <li key={name}>{name}</li>
       ))}
