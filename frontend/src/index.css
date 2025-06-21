@@ -1,1 +1,6 @@
 @import "tailwindcss";
+.question-content pre,
+.question-content code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+}
