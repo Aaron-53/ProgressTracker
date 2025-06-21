@@ -30,6 +30,7 @@ function Question() {
 
         const completedUsers = userRes.data.completed.map(user => ({
           name: user.user,
+          language:user.language,
           solution: `Solution not available`,
           timeTaken: "-",
           timeComplexity: "-",
@@ -113,11 +114,13 @@ function Question() {
                   </button>
                   {expandedCompleted === name && (
                     <div className="mt-2 p-4 bg-white/10 rounded text-sm whitespace-pre-wrap font-mono text-white">
+                       <p><strong>Language Used:</strong> {userProgress.completed.find(u => u.name === name)?.language || 'Unknown'}</p>
+                      {/*
                       <p><strong>Solution:</strong></p>
                       <pre className='pl-2'>{solution}</pre>
                       <p><strong>Time Taken:</strong> {timeTaken}</p>
                       <p><strong>Time Complexity:</strong> {timeComplexity}</p>
-                      <p><strong>Space Complexity:</strong> {spaceComplexity}</p>
+                      <p><strong>Space Complexity:</strong> {spaceComplexity}</p>*/}
                     </div>
                   )}
                 </li>
