@@ -1,65 +1,69 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-
-const userProgress = {
-    completed:[
-      {
-        name: "Bob",
-        solution:`function findLongestSubstring(s) {
-  let maxLength = 0;
-  let start = 0;
-  let seen = new Map();
-
-  for (let end = 0; end < s.length; end++) {
-    let char = s[end];
-    if (seen.has(char) && seen.get(char) >= start) {
-      start = seen.get(char) + 1;
-    }
-    seen.set(char, end);
-    maxLength = Math.max(maxLength, end - start + 1);
-  }
-
-  return maxLength;
-})`,
-        timeTaken: "10 mins",
-        timeComplexity: "O(1)",
-        spaceComplexity: "O(1)"
-
-      },
-       {
-        name: "john",
-        solution:`printf("their code")`,
-        timeTaken: "10 mins",
-        timeComplexity: "O(1)",
-        spaceComplexity: "O(1)"
-
-      }
-
-    ],
-    attempted: [
-      {
-        name: "Alice",
-      currentSolution: `printf("Partial code");`,
-      testCasesPassed: 3,
-      },
-      {
-        name: "Alice1",
-      currentSolution: `printf("Partial code");`,
-      testCasesPassed: 7,
-      }
-    ],
-     notAttempted: [
-      { name: "Eve" }
-    ]
-
-  }
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function Question() {
-  const { id } = useParams()
+  const { titleSlug } = useParams()
   const navigate = useNavigate()
 
   const [expandedCompleted, setExpandedCompleted] = useState(null)
   const [expandedAttempted, setExpandedAttempted] = useState(null)
+  const [questionContent, setQuestionContent] = useState(null)
+  const [userProgress, setUserProgress] = useState({
+    completed: [],
+    attempted: [],
+    notAttempted: []
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [questionRes, userRes,allUserRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/questions'),
+          axios.get(`http://localhost:3000/api/user/${titleSlug}`),
+          axios.get('http://localhost:3000/api/user')
+        ])
+
+        const question = questionRes.data.data.find(q => q.titleSlug === titleSlug)
+        setQuestionContent(question)
+
+        const completedUsers = userRes.data.completed.map(user => ({
+          name: user.user,
+          language:user.language,
+          solution: `Solution not available`,
+          timeTaken: "-",
+          timeComplexity: "-",
+          spaceComplexity: "-"
+        }))
+
+        const attemptedUsers = userRes.data.attempted.map(user => ({
+          name: user.user,
+          currentSolution: `Partial code not available`,
+          testCasesPassed: "-"
+        }))
+        const completedNames = userRes.data.completed.map(u => u.user)
+        const attemptedNames = userRes.data.attempted.map(u => u.user)
+        const allAttemptedOrCompleted = new Set([...completedNames, ...attemptedNames])
+        const notAttemptedUsers = allUserRes.data.users
+        .filter(user => !allAttemptedOrCompleted.has(user.username))
+        .map(user => ({ name: user.username }))
+
+        setUserProgress({
+          completed: completedUsers,
+          attempted: attemptedUsers,
+          notAttempted:notAttemptedUsers
+        })
+
+      } catch (err) {
+        console.error('Error fetching data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAllData()
+  }, [titleSlug])
 
   const toggleCompleted = (name) => {
     setExpandedCompleted(expandedCompleted === name ? null : name)
@@ -69,27 +73,33 @@ function Question() {
     setExpandedAttempted(expandedAttempted === name ? null : name)
   }
 
-
-
   return (
     <div className="container mx-auto p-8">
-      <div className="max-w-2xl mx-auto">
+      <div className=" max-w-2xl mx-auto">
         <button
           onClick={() => navigate('/questions')}
           className="mb-6 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
         >
           ← Back to Questions
         </button>
-        
-        <div className=" bg-white/10 backdrop-blur-md border border-white/20 shadow-xl  rounded-lg p-8">
+
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl rounded-lg p-8">
           <h1 className="text-2xl font-bold text-white mb-4">
-            Question {id}
+            {questionContent?.title || `Question ${titleSlug}`}
           </h1>
-          
-          <div className="text-gray-400">
-            <p>This is the content for question {id}.</p>
+
+          <div className="text-gray-400 mb-6 question-content">
+            {loading ? (
+              <p>Loading...</p>
+            ) : questionContent ? (
+              <div dangerouslySetInnerHTML={{ __html: questionContent.content }} />
+            ) : (
+              <p>Question not found.</p>
+            )}
           </div>
-           <div className="mb-8">
+
+          {/* Completed */}
+          <div className="mb-8">
             <h2 className="text-xl font-semibold mb-3 text-green-400">
               Completed ✅ ({userProgress.completed.length})
             </h2>
@@ -97,26 +107,28 @@ function Question() {
               {userProgress.completed.map(({ name, solution, timeTaken, timeComplexity, spaceComplexity }) => (
                 <li key={name}>
                   <button
-                    className="text-left w-full hover:underline border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white pl-4"
+                    className="text-left inline-block cursor-pointer border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white"
                     onClick={() => toggleCompleted(name)}
                   >
                     {name}
                   </button>
                   {expandedCompleted === name && (
                     <div className="mt-2 p-4 bg-white/10 rounded text-sm whitespace-pre-wrap font-mono text-white">
+                       <p><strong>Language Used:</strong> {userProgress.completed.find(u => u.name === name)?.language || 'Unknown'}</p>
+                      {/*
                       <p><strong>Solution:</strong></p>
                       <pre className='pl-2'>{solution}</pre>
                       <p><strong>Time Taken:</strong> {timeTaken}</p>
                       <p><strong>Time Complexity:</strong> {timeComplexity}</p>
-                      <p><strong>Space Complexity:</strong> {spaceComplexity}</p>
+                      <p><strong>Space Complexity:</strong> {spaceComplexity}</p>*/}
                     </div>
                   )}
                 </li>
               ))}
             </ul>
           </div>
-          
 
+          {/* Attempted */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-3 text-yellow-400">
               Attempted 🕗 ({userProgress.attempted.length})
@@ -125,7 +137,7 @@ function Question() {
               {userProgress.attempted.map(({ name, currentSolution, testCasesPassed }) => (
                 <li key={name}>
                   <button
-                    className="text-left w-full hover:underline border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white pl-4"
+                    className="text-left inline-block  border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white cursor-pointer"
                     onClick={() => toggleAttempted(name)}
                   >
                     {name}
@@ -142,18 +154,22 @@ function Question() {
             </ul>
           </div>
 
+          {/* Not Attempted */}
           <div>
-            <h2 className="text-xl font-semibold mb-3 text-red-400">
-              Not Attempted ❌ ({userProgress.notAttempted.length})
-            </h2>
-            <ul className="text-left w-full border-white rounded-md px-3 py-2 bg-white/5 hover:bg-white/10 text-white pl-4">
-              {userProgress.notAttempted.map(({ name }) => (
-                <li key={name}>{name}</li>
-              ))}
-            </ul>
-          </div>
+  <h2 className="text-xl font-semibold mb-3 text-red-400">
+    Not Attempted ❌ ({userProgress.notAttempted.length})
+  </h2>
 
-          
+  {userProgress.notAttempted.length > 0 ? (
+    <ul className="text-left inline-block px-3 py-2 text-white">
+      {userProgress.notAttempted.map(({ name }) => (
+        <li key={name}>{name}</li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-400 italic">Everyone attempted. Yayy!!</p>
+  )}
+</div>
 
         </div>
       </div>
