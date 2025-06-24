@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { API_ENDPOINTS } from '../config/api'
 
 function Question() {
   const { titleSlug } = useParams()
@@ -19,10 +20,10 @@ function Question() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [questionRes, userRes,allUserRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/questions'),
-          axios.get(`http://localhost:3000/api/user/${titleSlug}`),
-          axios.get('http://localhost:3000/api/user')
+        const [questionRes, userRes, allUserRes] = await Promise.all([
+          axios.get(API_ENDPOINTS.QUESTIONS),
+          axios.get(`${API_ENDPOINTS.USER_PROGRESS}/${titleSlug}`),
+          axios.get(API_ENDPOINTS.USER_PROGRESS)
         ])
 
         const question = questionRes.data.data.find(q => q.titleSlug === titleSlug)
@@ -30,7 +31,7 @@ function Question() {
 
         const completedUsers = userRes.data.completed.map(user => ({
           name: user.user,
-          language:user.language,
+          language: user.language,
           solution: `Solution not available`,
           timeTaken: "-",
           timeComplexity: "-",
@@ -52,7 +53,7 @@ function Question() {
         setUserProgress({
           completed: completedUsers,
           attempted: attemptedUsers,
-          notAttempted:notAttemptedUsers
+          notAttempted: notAttemptedUsers
         })
 
       } catch (err) {
