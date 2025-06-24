@@ -12,8 +12,20 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Local development
+    'http://localhost:3000', // Local development
+    'https://leetcodeprogresstracker.vercel.app', // Your Vercel frontend
+    'https://progresstracker-qgts.onrender.com' // Your Render backend
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
