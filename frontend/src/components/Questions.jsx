@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_ENDPOINTS } from '../config/api'
 
 function Questions() {
   const navigate = useNavigate()
@@ -10,7 +11,7 @@ function Questions() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/questions/')
+        const response = await fetch(API_ENDPOINTS.QUESTIONS)
         const data = await response.json()
         if (data.success) {
           setQuestions(data.data)
