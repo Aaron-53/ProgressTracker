@@ -1,4 +1,4 @@
-const Question = require("../models/questionModel");
+// const Question = require("../models/questionModel");
 const base_url = "https://leetcode.com/graphql/";
 async function findName(username) {
   try {
@@ -54,7 +54,7 @@ async function findSubmissons(username) {
     `,
         variables: {
           username: `${username}`,
-          limit: 15,
+          limit: 20,
         },
         operationName: 'recentAcSubmissions',
       }),
@@ -69,19 +69,19 @@ async function findSubmissons(username) {
 
 async function findProgress(submissions) {
   try {
-    const questions = await Question.find({},);
     const progress = [];
     for (const submission of submissions) {
-      if (questions.some(q => q.titleSlug === submission.titleSlug)) {
         progress.push({
-          question: questions.find(q => q.titleSlug === submission.titleSlug),
+          // question:await Question.findOne({ titleSlug: submission.titleSlug }) || null,
+          titleSlug: submission.titleSlug,
           timestamp: submission.timestamp,
           submissionId: submission.id,
           status: submission.statusDisplay,
           language: submission.lang
         });
-      }
+      
     }
+    console.log(progress);
     return progress;
   } catch (error) {
     return null;

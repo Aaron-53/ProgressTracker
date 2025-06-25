@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const solvedSchema = new mongoose.Schema({
-  question: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Question' 
-  },
+  // question: { 
+  //   type: mongoose.Schema.Types.ObjectId, 
+  //   ref: 'Question' 
+  // },
+  titleSlug: String,
   timestamp: { 
     type: Date, 
     default: Date.now 
