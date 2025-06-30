@@ -73,6 +73,7 @@ function Question() {
   const toggleAttempted = (name) => {
     setExpandedAttempted(expandedAttempted === name ? null : name)
   }
+  if (loading) return <div>Loading...</div>
 
   return (
     <div className="container mx-auto p-8">
