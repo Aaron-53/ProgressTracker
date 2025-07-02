@@ -1,52 +1,161 @@
-import { User, Lock, Eye, EyeOff } from "lucide-react";
-import { LogIn } from 'lucide-react';
-import { useState } from "react";
+import React, { useState } from 'react'
+import { User, Lock, Eye, EyeOff, LogIn } from "lucide-react"
+import { useNavigate } from 'react-router-dom'
+import { API_ENDPOINTS } from "../config/api";
 
 
 const Login = () => {
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  })
 
-  const [showPassword, setShowPassword] = useState(false);
-  const togglePasswordVisibility = () => {setShowPassword(!showPassword);}
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
-    return (
-    <div className="w-full h-screen flex items-center justify-center">
-      <div className="w-[90%] max-w-md md:max-w-lg lg:max-w-md p-6 bg-gray-900 flex-col flex items-center gap-4 rounded-xl shadow-slate-500 shadow-sm border border-slate-700 border-solid h-[420px] outline outline-[0.5px] outline-gray-600">
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!formData.username || !formData.password) {
+      alert('Please fill in all required fields')
+      return
+    }
 
-        <div className = "flex flex-col gap-6 w-full max-w-sm self-center">
+    setLoading(true)
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH_SIGNIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-          <h1 className="text-3xl md:text-3xl text-white font-semibold text-center mt-4">Welcome Back</h1>
-          <p className="text-sm md:text-base text-gray-400 text-center">Sign in to your account to continue </p>
-    
-            <div className="w-full flex items-center bg-zinc-700 p-3 rounded-lg gap-2 outline outline-[0.5px] outline-gray-500">
-                <User className ="text-gray-400"/>
-                <input 
-                  type="username" 
-                  placeholder="Enter your username" 
-                  className="bg-transparent border-0 w-full outline-none text-sm md:text-base" 
-                />
-            </div>
+      const data = await response.json()
+
+      if (data.success) {
+        console.log('Sign in successful:', data)
+        // Store token in localStorage
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
         
-            <div className="w-full relative flex items-center bg-zinc-700 p-3 rounded-lg gap-2 outline outline-[0.5px] outline-gray-500">
-                <Lock className ="text-gray-400"/>
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password" 
-                  className="bg-transparent border-0 w-full outline-none text-sm md:text-base" 
-                  />
-                  {showPassword ? (
-                    <EyeOff className="absolute right-5 cursor-pointer text-gray-400" onClick={togglePasswordVisibility} /> )
-                   :(
-                    <Eye className="absolute right-5 cursor-pointer text-gray-400" onClick={togglePasswordVisibility} /> )
-                  }
-            </div>
-       
-        <button className="w-full bg-gray-800 p-3 rounded-lg text-white font-semibold hover:bg-gray-600 transition duration-200 border border-gray-900 border-solid outline outline-[0.5px] outline-gray-600 flex items-center justify-center gap-3 "><LogIn/> Sign In</button>
-        <p className="text-xs md:text-sm text-gray-500 text-center mb-5">Don't have an account? <span className="text-white cursor-pointer underline underline-offset-2">Sign Up</span></p>
+        // Redirect to questions page
+        navigate('/questions')
+      } else {
+        alert(data.message || 'Authentication failed')
+      }
+    } catch (error) {
+      console.error('Auth error:', error)
+      alert('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
+        
+        {/* Form Content */}
+        <div className="p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Welcome Back
+            </h2>
+            <p className="text-white/70">
+              Sign in to your account to continue
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username Field */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <User className="h-5 w-5 text-white/50" />
+              </div>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter your username"
+                required
+                disabled={loading}
+                className="w-full pl-10 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-white/50" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter your password"
+                required
+                disabled={loading}
+                className="w-full pl-10 pr-12 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                disabled={loading}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/50 hover:text-white transition-colors duration-200 disabled:opacity-50"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gray-800/30 hover:bg-gray-800/60 backdrop-blur-sm text-white font-semibold py-3 px-4 rounded-lg border border-white/30 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? (
+                <span>Signing In...</span>
+              ) : (
+                <>
+                  <LogIn size={18} />
+                  <span>Sign In</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Additional Options */}
+          {/* <div className="mt-6 text-center">
+            <p className="text-white/60 text-sm">
+              Don't have an account?{' '}
+              <button
+                onClick={() => navigate('/signup')}
+                disabled={loading}
+                className="text-white hover:text-white/80 font-semibold underline transition-colors duration-200 disabled:opacity-50"
+              >
+                Sign Up
+              </button>
+            </p>
+          </div> */}
         </div>
       </div>
     </div>
-  );
-};
+    //hello
+  )
+}
 
-export default Login;
+export default Login
