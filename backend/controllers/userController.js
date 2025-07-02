@@ -31,11 +31,11 @@ class userController {
         return res.status(404).json({ success: false, message: "Question not found" });
       }
       const users = await User.find(
-        { "solvedQuestions.question": question._id },
+        { "solvedQuestions.titleSlug": question.titleSlug },
         {
           username: 1,
           solvedQuestions: {
-            $elemMatch: { question: question._id }
+            $elemMatch: {titleSlug: question.titleSlug}
           }
         }
       );
@@ -66,21 +66,6 @@ class userController {
     }
   }
 
-  // static async getNameFromLeetCodeProfile(req, res) {
-  //   const { username } = req.query;
-
-  //   if (!username) {
-  //     return res.status(400).json({ error: "Missing username parameter" });
-  //   }
-
-  //   try {
-  //     const name = await findName(username);
-  //     res.json({ success: true, name });
-  //   } catch (error) {
-  //     console.error("Scraping error:", error);
-  //     res.status(500).json({ error: error.message });
-  //   }
-  // }
   static async addAllUsersProgress(req, res) {
     try {
       const users = await User.find({}, 'username');
