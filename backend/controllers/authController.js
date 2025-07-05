@@ -5,7 +5,7 @@ class authController {
   // Sign Up
   static async signup(req, res) {
     try {
-      const { username, password,  } = req.body;
+      const { username, password } = req.body;
 
       // Validate required fields
       if (!username || !password) {
@@ -27,8 +27,7 @@ class authController {
       // Create new user
       const user = new User({
         username,
-        password,
-        
+        password
       });
 
       await user.save();
@@ -94,7 +93,7 @@ class authController {
       const token = jwt.sign(
         { userId: user._id, username: user.username },
         process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '7d' }
+        { expiresIn: '30d' }
       );
 
       res.status(200).json({
@@ -104,7 +103,6 @@ class authController {
         user: {
           id: user._id,
           username: user.username,
-          email: user.email
         }
       });
 
@@ -117,50 +115,64 @@ class authController {
     }
   }
 
-  // Verify Token (for protected routes)
-  static async verifyToken(req, res, next) {
+  // Validate Token
+  static async validateToken(req, res) {
     try {
-      const token = req.header('Authorization')?.replace('Bearer ', '');
-
-      if (!token) {
-        return res.status(401).json({
-          success: false,
-          message: "Access denied. No token provided"
-        });
-      }
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-      const user = await User.findById(decoded.userId).select('-password');
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid token"
-        });
-      }
-
-      req.user = user;
-      next();
-
+      // Token is already verified by verifyToken middleware
+      // User is already attached to req.user
+      res.status(200).json({
+        success: true,
+        user: {
+          id: req.user._id,
+          username: req.user.username
+        }
+      });
     } catch (error) {
-      res.status(401).json({
+      console.error('Token validation error:', error);
+      res.status(500).json({
         success: false,
-        message: "Invalid token"
+        message: "Server error during token validation"
       });
     }
   }
 
-  // Get current user profile
-  static async getProfile(req, res) {
+  // Middleware to verify JWT token
+  static async verifyToken(req, res, next) {
     try {
-      res.status(200).json({
-        success: true,
-        user: req.user
-      });
+      const authHeader = req.header('Authorization');
+      const token = authHeader && authHeader.replace('Bearer ', '');
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Access denied. No token provided."
+        });
+      }
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const user = await User.findById(decoded.userId).select('-password');
+        
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid token. User not found."
+          });
+        }
+
+        req.user = user;
+        next();
+      } catch (jwtError) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid token."
+        });
+      }
     } catch (error) {
+      console.error('Token verification error:', error);
       res.status(500).json({
         success: false,
-        message: "Server error"
+        message: "Server error during token verification"
       });
     }
   }

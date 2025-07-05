@@ -5,6 +5,6 @@ const router = express.Router();
 // Auth routes
 router.post("/signup", authController.signup);
 router.post("/signin", authController.signin);
-router.get("/profile", authController.verifyToken, authController.getProfile);
+router.get("/signin/validate", authController.verifyToken, authController.validateToken);
 
 module.exports = router;

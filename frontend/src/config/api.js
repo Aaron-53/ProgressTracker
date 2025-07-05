@@ -12,4 +12,4 @@ export const API_ENDPOINTS = {
 }
 //console.log("API_BASE_URL:", API_BASE_URL);
 
-export default API_BASE_URL  
+export default API_BASE_URL

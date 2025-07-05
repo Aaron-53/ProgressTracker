@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API_ENDPOINTS } from '../config/api'
+import { useAuth } from '../context/AuthContext'
+import { FiLogOut } from "react-icons/fi"
 
 function Questions() {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [questions, setQuestions] = useState([])
   const [groupedQuestions, setGroupedQuestions] = useState({})
   const [loading, setLoading] = useState(true)
@@ -75,11 +78,30 @@ function Questions() {
   if (loading) return <div>Loading...</div>
 
   return (
-    <section id="questions" className="h-screen w-screen flex items-center justify-center p-3 sm:p-6">    
-        <div className="w-full max-w-3xl h-[80vh] mx-4 sm:mx-8 p-4 px-6 sm:p-6 sm:px-12 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl  rounded-lg  flex flex-col">
-            <h1 className="text-2xl sm:text-4xl font-bold text-center mt-2 mb-4 sm:mb-8 text-white ">
-                Select a Question
-            </h1>
+    <section id="questions" className="h-screen w-screen flex items-center justify-center p-3 sm:p-6">
+        {/* Welcome message - Left side */}
+        <div className="absolute top-4 left-4 md:left-8 z-10">
+          <span className="text-2xl md:text-3xl font-semibold text-white/90">Welcome, {user?.username} 👋</span>
+        </div>
+        
+        {/* Logout button - Right side */}
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            onClick={logout}
+            className="bg-amber-500/10 hover:bg-amber-500/5 text-amber-500/80 px-4 py-2 rounded-lg border border-amber-500/30 transition-all duration-200 cursor-pointer flex items-center gap-2"
+          >
+            <FiLogOut className="w-5 h-5" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+         
+        <div className="w-full mt-12 max-w-3xl h-[80vh] mx-4 sm:mx-8 p-4 px-6 sm:p-6 sm:px-12 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl  rounded-lg  flex flex-col">
+            {/* Header */}
+            <div className="flex justify-center items-center mb-4">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white">
+                  Select a Question
+              </h1>
+            </div>
             
             <div className="flex-1 overflow-y-auto rounded-lg scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent px-1 sm:px-2">
                 {Object.keys(groupedQuestions).length === 0 ? (
