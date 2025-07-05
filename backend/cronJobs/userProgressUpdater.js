@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const userController = require('../controllers/userController');
 
 function userProgressCron() {
-  cron.schedule('*/15 * * * *', async () => {
+   cron.schedule('*/15 * * * *', async () => {
     console.log('⏰ Running addAllUsersProgress at', new Date().toLocaleString());
 
     try {

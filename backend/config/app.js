@@ -17,8 +17,8 @@ const corsOptions = {
   origin: [
     'http://localhost:5173', // Local development
     'http://localhost:3000', // Local development
-    'https://leetcodeprogresstracker.vercel.app', // Your Vercel frontend
-    'https://progresstracker-qgts.onrender.com' // Your Render backend
+    'https://leetcodeprogresstracker.vercel.app', //  Vercel frontend
+    'https://progresstracker-qgts.onrender.com', //  Render backend
   ],
   credentials: true,
   optionsSuccessStatus: 200

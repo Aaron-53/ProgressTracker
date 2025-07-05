@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { User, Lock, Eye, EyeOff, LogIn } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
-import { API_ENDPOINTS } from "../config/api";
+import { useAuth } from '../context/AuthContext'
 
 
 const Login = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -30,26 +31,10 @@ const Login = () => {
 
     setLoading(true)
     try {
-      const response = await fetch(API_ENDPOINTS.AUTH_SIGNIN, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        console.log('Sign in successful:', data)
-        // Store token in localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        // Redirect to questions page
-        navigate('/questions')
-      } else {
-        alert(data.message || 'Authentication failed')
+      const result = await login(formData.username, formData.password)
+      
+      if (!result.success) {
+        alert(result.message || 'Authentication failed')
       }
     } catch (error) {
       console.error('Auth error:', error)
