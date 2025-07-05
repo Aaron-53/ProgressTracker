@@ -88,7 +88,7 @@ function Questions() {
         <div className="absolute top-4 right-4 z-10">
           <button 
             onClick={logout}
-            className="bg-amber-500/20 hover:bg-amber-500/10 text-amber-500/80 px-4 py-2 rounded-lg border border-amber-500/30 transition-all duration-200 cursor-pointer flex items-center gap-2"
+            className="bg-amber-500/10 hover:bg-amber-500/5 text-amber-500/80 px-4 py-2 rounded-lg border border-amber-500/30 transition-all duration-200 cursor-pointer flex items-center gap-2"
           >
             <FiLogOut className="w-5 h-5" />
             <span className="hidden sm:inline">Logout</span>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { API_ENDPOINTS } from '../config/api'
+import { tokenStorage } from '../utils/storage'
 
 const AuthContext = createContext()
 
@@ -15,8 +16,8 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const checkAuthStatus = async () => {
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
+    const token = tokenStorage.getToken()
+    const userData = tokenStorage.getUser()
 
     if (token && userData) {
       try {
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         })
 
         if (response.ok) {
-          setUser(JSON.parse(userData))
+          setUser(userData)
           
           // If on login/signup page, redirect to questions
           if (location.pathname === '/login' || location.pathname === '/signup') {
@@ -66,8 +67,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json()
 
       if (data.success) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        tokenStorage.setAuthData(data.token, data.user)
         setUser(data.user)
         navigate('/questions')
         return { success: true }
@@ -81,8 +81,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    tokenStorage.clearAuthData()
     setUser(null)
     navigate('/login')
   }
@@ -100,8 +99,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json()
 
       if (data.success) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        tokenStorage.setAuthData(data.token, data.user)
         setUser(data.user)
         navigate('/questions')
         return { success: true }
