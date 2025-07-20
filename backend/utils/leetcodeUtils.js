@@ -36,5 +36,28 @@ async function fetchQuestionFromLeetCode(titleSlug) {
   }
 }
 
-module.exports = { fetchQuestionFromLeetCode };
+
+// Fetch LeetCode username using session and csrf token
+async function fetchLeetCodeUsername(session, csrf) {
+  const response = await fetch('https://leetcode.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'cookie': `_csrf=${csrf}; LEETCODE_SESSION=${session};`,
+      'x-csrftoken': csrf,
+      'referer': 'https://leetcode.com',
+    },
+    body: JSON.stringify({
+      query: `query { user { username } }`
+    })
+  });
+  const result = await response.json();
+  if (result.data && result.data.user && result.data.user.username) {
+    return result.data.user.username;
+  } else {
+    throw new Error('Could not fetch LeetCode username');
+  }
+}
+
+module.exports = { fetchQuestionFromLeetCode, fetchLeetCodeUsername };
 

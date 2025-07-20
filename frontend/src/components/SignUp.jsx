@@ -10,7 +10,9 @@ function SignUp() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    leetcodeSession: '',
+    leetcodeCsrf: ''
   })
 
   const handleInputChange = (e) => {
@@ -23,7 +25,7 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.username || !formData.password || !formData.confirmPassword) {
+    if (!formData.username || !formData.password || !formData.confirmPassword || !formData.leetcodeSession || !formData.leetcodeCsrf) {
       alert('Please fill in all required fields')
       return
     }
@@ -42,7 +44,9 @@ function SignUp() {
         },
         body: JSON.stringify({
           username: formData.username,
-          password: formData.password
+          password: formData.password,
+          leetcodeSession: formData.leetcodeSession,
+          leetcodeCsrf: formData.leetcodeCsrf
         }),
       })
 
@@ -158,6 +162,34 @@ function SignUp() {
                 required
                 disabled={loading}
                 className="w-full pl-10 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              />
+            </div>
+
+            {/* LeetCode Session Token Field */}
+            <div className="relative">
+              <input
+                type="text"
+                name="leetcodeSession"
+                value={formData.leetcodeSession}
+                onChange={handleInputChange}
+                placeholder="LeetCode Session Token (_leetcode_session)"
+                required
+                disabled={loading}
+                className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              />
+            </div>
+
+            {/* LeetCode CSRF Token Field */}
+            <div className="relative">
+              <input
+                type="text"
+                name="leetcodeCsrf"
+                value={formData.leetcodeCsrf}
+                onChange={handleInputChange}
+                placeholder="LeetCode CSRF Token (csrftoken)"
+                required
+                disabled={loading}
+                className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
               />
             </div>
 

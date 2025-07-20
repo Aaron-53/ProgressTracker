@@ -21,9 +21,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 30
+    trim: true
+  },
+  name: {
+    type: String,
+    required: true
   },
   password: {
     type: String,
@@ -31,6 +33,14 @@ const userSchema = new mongoose.Schema({
     minlength: 6
   },
   solvedQuestions: [solvedSchema],
+  leetcodeSession: {
+    type: String,
+    required: true
+  },
+  leetcodeCsrf: {
+    type: String,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
