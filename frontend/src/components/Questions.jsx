@@ -81,7 +81,7 @@ function Questions() {
     <section id="questions" className="h-screen w-screen flex items-center justify-center p-3 sm:p-6">
         {/* Welcome message - Left side */}
         <div className="absolute top-4 left-4 md:left-8 z-10">
-          <span className="text-2xl md:text-3xl font-semibold text-white/90">Welcome, {user?.username} 👋</span>
+          <span className="text-2xl md:text-3xl font-semibold text-white/90">Welcome, {user?.name} 👋</span>
         </div>
         
         {/* Logout button - Right side */}
@@ -176,3 +176,4 @@ function Questions() {
 }
 
 export default Questions
+

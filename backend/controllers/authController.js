@@ -5,29 +5,44 @@ class authController {
   // Sign Up
   static async signup(req, res) {
     try {
-      const { username, password } = req.body;
+      const { username, password, leetcodeSession, leetcodeCsrf } = req.body;
 
       // Validate required fields
-      if (!username || !password) {
+      if (!username || !password || !leetcodeSession || !leetcodeCsrf) {
         return res.status(400).json({
           success: false,
-          message: "Username and password are required"
+          message: "All fields are required."
         });
       }
 
-      // Check if user already exists
-      const existingUser = await User.findOne({ username });
+      // Fetch real LeetCode username using session and csrf
+      const { fetchLeetCodeUsername } = require('../utils/leetcodeUtils');
+      let realLeetCodeUsername;
+      try {
+        realLeetCodeUsername = await fetchLeetCodeUsername(leetcodeSession, leetcodeCsrf);
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Could not fetch LeetCode username. Please check your session and csrf token."
+        });
+      }
+
+      // Check if user already exists (by real LeetCode username)
+      const existingUser = await User.findOne({ username: realLeetCodeUsername });
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: "Username already exists"
+          message: "LeetCode account already registered."
         });
       }
 
       // Create new user
       const user = new User({
-        username,
-        password
+        username: realLeetCodeUsername,
+        name: username,
+        password,
+        leetcodeSession,
+        leetcodeCsrf
       });
 
       await user.save();
@@ -46,6 +61,7 @@ class authController {
         user: {
           id: user._id,
           username: user.username,
+          name: user.name,
         }
       });
 
@@ -71,8 +87,8 @@ class authController {
         });
       }
 
-      // Find user by username
-      const user = await User.findOne({ username });
+      // Find user by name (not LeetCode username)
+      const user = await User.findOne({ name: username });
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -103,6 +119,7 @@ class authController {
         user: {
           id: user._id,
           username: user.username,
+          name: user.name,
         }
       });
 
@@ -124,7 +141,8 @@ class authController {
         success: true,
         user: {
           id: req.user._id,
-          username: req.user.username
+          username: req.user.username,
+          name: req.user.name,
         }
       });
     } catch (error) {
