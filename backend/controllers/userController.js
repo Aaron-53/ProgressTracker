@@ -77,10 +77,9 @@ class userController {
           const submissions = await findSubmissons(username);
           const progress = await findProgress(submissions);
           if (JSON.stringify(user.solvedQuestions) !== JSON.stringify(progress)) {
-            user.solvedQuestions = progress;
+            user.solvedQuestions=[...user.solvedQuestions, ...progress];
             await user.save();
           }
-          results.push({ username, progress });
         } catch (err) {
           results.push({ username, error: err.message });
         }
