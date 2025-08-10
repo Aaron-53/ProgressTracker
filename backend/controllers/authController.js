@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const {findAllSubmissions} = require('../utils/extractionUtils');
 
 class authController {
   // Sign Up
@@ -46,14 +47,14 @@ class authController {
       });
 
       await user.save();
-
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, username: user.username },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '7d' }
       );
-
+      await findAllSubmissions(user.leetcodeSession, user.leetcodeCsrf, user.username)
+      // Respond with success
       res.status(201).json({
         success: true,
         message: "User created successfully",
