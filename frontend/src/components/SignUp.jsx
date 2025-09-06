@@ -1,88 +1,114 @@
-import React, { useState } from 'react'
-import { Eye, EyeOff, User, Lock, UserPlus, ArrowLeft } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { API_ENDPOINTS } from '../config/api'
+import React, { useState } from "react";
+import { Eye, EyeOff, User, Lock, UserPlus, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { API_ENDPOINTS } from "../config/api";
 
 function SignUp() {
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    leetcodeSession: '',
-    leetcodeCsrf: ''
-  })
+    username: "",
+    password: "",
+    confirmPassword: "",
+    leetcodeSession: "",
+    leetcodeCsrf: "",
+    class: "",
+    batchYear: "",
+  });
+
+  const classOptions = [
+    "CSA",
+    "CSB",
+    "CSC",
+    "CU",
+    "ECA",
+    "ECB",
+    "EV",
+    "EB",
+    "MECH",
+    "EEE",
+  ];
+
+  const batchYearOptions = [2026, 2027, 2028, 2029];
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!formData.username || !formData.password || !formData.confirmPassword || !formData.leetcodeSession || !formData.leetcodeCsrf) {
-      alert('Please fill in all required fields')
-      return
+    e.preventDefault();
+    if (
+      !formData.username ||
+      !formData.password ||
+      !formData.confirmPassword ||
+      !formData.class ||
+      !formData.batchYear
+    ) {
+      alert(
+        "Please fill in all required fields (username, password, class, batch year)"
+      );
+      return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match')
-      return
+      alert("Passwords do not match");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.AUTH_SIGNUP, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
           leetcodeSession: formData.leetcodeSession,
-          leetcodeCsrf: formData.leetcodeCsrf
+          leetcodeCsrf: formData.leetcodeCsrf,
+          class: formData.class,
+          batchYear: formData.batchYear,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        console.log('Signup successful:', data)
+        console.log("Signup successful:", data);
         // Store token in localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
         // Redirect to questions page
-        navigate('/questions')
+        navigate("/questions");
       } else {
-        alert(data.message || 'Signup failed')
+        alert(data.message || "Signup failed");
       }
     } catch (error) {
-      console.error('Signup error:', error)
-      alert('Network error. Please try again.')
+      console.error("Signup error:", error);
+      alert("Network error. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
-        
         {/* Header */}
         <div className="bg-white/20 py-4 px-6 flex items-center justify-between">
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
             className="flex items-center gap-2 text-white/70 hover:text-white transition-colors duration-200"
           >
             <ArrowLeft size={18} />
@@ -100,9 +126,7 @@ function SignUp() {
             <h2 className="text-3xl font-bold text-white mb-2">
               Create Account
             </h2>
-            <p className="text-white/70">
-              Join us and start your journey
-            </p>
+            <p className="text-white/70">Join us and start your journey</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -129,7 +153,7 @@ function SignUp() {
                 <Lock className="h-5 w-5 text-white/50" />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -154,7 +178,7 @@ function SignUp() {
                 <Lock className="h-5 w-5 text-white/50" />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
@@ -165,6 +189,68 @@ function SignUp() {
               />
             </div>
 
+            {/* Class Selection */}
+            <div className="relative">
+              <select
+                name="class"
+                value={formData.class}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+                className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              >
+                <option value="" className="bg-gray-800 text-white">
+                  Select your class
+                </option>
+                {classOptions.map((cls) => (
+                  <option
+                    key={cls}
+                    value={cls}
+                    className="bg-gray-800 text-white"
+                  >
+                    {cls}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Batch Year Selection */}
+            <div className="relative">
+              <select
+                name="batchYear"
+                value={formData.batchYear}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+                className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+              >
+                <option value="" className="bg-gray-800 text-white">
+                  Select your batch year
+                </option>
+                {batchYearOptions.map((year) => (
+                  <option
+                    key={year}
+                    value={year}
+                    className="bg-gray-800 text-white"
+                  >
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Optional LeetCode Credentials Note */}
+            <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-lg p-3">
+              <p className="text-yellow-100 text-sm font-medium mb-1">
+                📝 LeetCode Credentials (Optional)
+              </p>
+              <p className="text-yellow-200 text-xs">
+                To track your previous submissions, please add your LeetCode
+                session and CSRF tokens. Leave blank if you don't want to track
+                submissions yet.
+              </p>
+            </div>
+
             {/* LeetCode Session Token Field */}
             <div className="relative">
               <input
@@ -172,8 +258,7 @@ function SignUp() {
                 name="leetcodeSession"
                 value={formData.leetcodeSession}
                 onChange={handleInputChange}
-                placeholder="LeetCode Session Token (_leetcode_session)"
-                required
+                placeholder="LeetCode Session Token (Optional)"
                 disabled={loading}
                 className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
               />
@@ -186,8 +271,7 @@ function SignUp() {
                 name="leetcodeCsrf"
                 value={formData.leetcodeCsrf}
                 onChange={handleInputChange}
-                placeholder="LeetCode CSRF Token (csrftoken)"
-                required
+                placeholder="LeetCode CSRF Token (Optional)"
                 disabled={loading}
                 className="w-full pl-4 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300 disabled:opacity-50"
               />
@@ -195,22 +279,25 @@ function SignUp() {
 
             {/* Password Match Indicator */}
             {formData.password && formData.confirmPassword && (
-              <div className={`text-sm ${
-                formData.password === formData.confirmPassword 
-                  ? 'text-green-400' 
-                  : 'text-red-400'
-              }`}>
-                {formData.password === formData.confirmPassword 
-                  ? '✓ Passwords match' 
-                  : '✗ Passwords do not match'
-                }
+              <div
+                className={`text-sm ${
+                  formData.password === formData.confirmPassword
+                    ? "text-green-400"
+                    : "text-red-400"
+                }`}
+              >
+                {formData.password === formData.confirmPassword
+                  ? "✓ Passwords match"
+                  : "✗ Passwords do not match"}
               </div>
             )}
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || formData.password !== formData.confirmPassword}
+              disabled={
+                loading || formData.password !== formData.confirmPassword
+              }
               className="w-full bg-gray-800/30 hover:bg-gray-800/60 backdrop-blur-sm text-white font-semibold py-3 px-4 rounded-lg border border-white/30 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
@@ -227,9 +314,9 @@ function SignUp() {
           {/* Additional Options */}
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 disabled={loading}
                 className="text-white hover:text-white/80 font-semibold underline transition-colors duration-200 disabled:opacity-50"
               >
@@ -240,7 +327,7 @@ function SignUp() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default SignUp
+export default SignUp;

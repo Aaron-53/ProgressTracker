@@ -32,7 +32,9 @@ export const AuthProvider = ({ children }) => {
           setUser(userData)
           
           // If on login/signup page, redirect to questions
+          console.log('Current path:', location.pathname)
           if (location.pathname === '/login' || location.pathname === '/signup') {
+            
             navigate('/questions')
           }
         } else {
