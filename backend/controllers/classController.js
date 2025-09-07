@@ -214,6 +214,49 @@ class classController {
     }
   }
 
+  // Admin: Remove entire problem set
+  static async removeProblemSet(req, res) {
+    try {
+      const { className, batchYear, problemSetName } = req.body;
+
+      // Check if user is admin
+      if (!req.user.isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required.",
+        });
+      }
+
+      const classData = await Class.findOne({ className, batchYear });
+
+      if (!classData) {
+        return res.status(404).json({
+          success: false,
+          message: "Class not found",
+        });
+      }
+
+      // Remove the problem set from the array
+      classData.problemSets = classData.problemSets.filter(
+        (ps) => ps.name !== problemSetName
+      );
+
+      await classData.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Problem set removed successfully",
+        data: classData,
+      });
+    } catch (error) {
+      console.error("Remove problem set error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error while removing problem set",
+      });
+    }
+  }
+
   // Get all classes (Admin only)
   static async getAllClasses(req, res) {
     try {

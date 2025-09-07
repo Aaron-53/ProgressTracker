@@ -13,6 +13,7 @@ router.get("/assignments", classController.getClassAssignments);
 router.put("/assignments", classController.updateClassAssignments);
 router.post("/problems/add", classController.addProblemToSet);
 router.delete("/problems/remove", classController.removeProblemFromSet);
+router.delete("/problemset/remove", classController.removeProblemSet);
 router.get("/all", classController.getAllClasses);
 
 module.exports = router;
