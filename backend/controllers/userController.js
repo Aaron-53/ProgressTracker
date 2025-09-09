@@ -77,7 +77,7 @@ class userController {
 
   static async addAllUsersProgress(req, res) {
     try {
-      const users = await User.find({}, "username");
+      const users = await User.find({}, 'username solvedQuestions');
       const results = [];
       for (const user of users) {
         const username = user.username;
@@ -85,9 +85,11 @@ class userController {
         try {
           const submissions = await findSubmissons(username);
           const progress = await findProgress(submissions);
-          if (
-            JSON.stringify(user.solvedQuestions) !== JSON.stringify(progress)
-          ) {
+          // Ensure solvedQuestions is initialized as an array
+          if (!Array.isArray(user.solvedQuestions)) {
+            user.solvedQuestions = [];
+          }
+          if (JSON.stringify(user.solvedQuestions) !== JSON.stringify(progress)) {
             user.solvedQuestions = [...user.solvedQuestions, ...progress];
             await user.save();
           }
