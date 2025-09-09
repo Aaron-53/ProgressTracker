@@ -43,6 +43,13 @@ const Class = () => {
     fetchUserData();
   }, []);
 
+  // Rebuild user progress map once user info is available
+  useEffect(() => {
+    if (!user) return;
+    // Re-fetch class/progress to compute map with the correct username
+    fetchClassData();
+  }, [user]);
+
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -93,8 +100,9 @@ const Class = () => {
 
         if (progressResponse.ok) {
           const progressData = await progressResponse.json();
+          // Match against authenticated user's username to build solved map
           const currentUser = progressData.users.find(
-            (u) => u.username === data.data?.username
+            (u) => u.username === user?.username
           );
           if (currentUser) {
             const solvedMap = {};
