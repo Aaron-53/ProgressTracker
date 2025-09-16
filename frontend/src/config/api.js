@@ -11,7 +11,7 @@ export const API_ENDPOINTS = {
   CLASS_ADD_PROBLEM: `${API_BASE_URL}/api/class/problems/add`,
   CLASS_REMOVE_PROBLEM: `${API_BASE_URL}/api/class/problems/remove`,
   CLASS_REMOVE_SET: `${API_BASE_URL}/api/class/problemset/remove`,
-  USER_PROGRESS_TRIGGER: `${API_BASE_URL}/api/user/progress/trigger`,
+  USER_PROGRESS_TRIGGER: `${API_BASE_URL}/api/user/progress/all`,
   QUESTIONS: `${API_BASE_URL}/api/questions`,
   QUESTIONS_UPLOAD: `${API_BASE_URL}/api/questions/upload`,
   USER_PROGRESS: `${API_BASE_URL}/api/user`,
